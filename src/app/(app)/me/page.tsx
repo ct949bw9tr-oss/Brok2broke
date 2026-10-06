@@ -47,11 +47,16 @@ export default async function MePage({ searchParams }: { searchParams: Promise<{
             </div>
           </div>
         </div>
-        <form action={signOut}>
-          <button className="btn btn-sm btn-ghost" type="submit">
-            Sign out
-          </button>
-        </form>
+        <div className="row">
+          <Link href="/me/payouts" className="btn btn-sm">
+            💳 Get paid
+          </Link>
+          <form action={signOut}>
+            <button className="btn btn-sm btn-ghost" type="submit">
+              Sign out
+            </button>
+          </form>
+        </div>
       </div>
 
       <nav className="tabs" aria-label="My stuff">
@@ -94,7 +99,7 @@ export default async function MePage({ searchParams }: { searchParams: Promise<{
               {purchases.map((p) => (
                 <tr key={p.id}>
                   <td>{p.listing ? <Link href={`/listings/${p.listing.id}`}>{p.listing.title}</Link> : "Item"}</td>
-                  <td>{p.channel === "sunday_market" ? "Sunday Market" : "Meetup"}</td>
+                  <td>{p.channel === "sunday_market" ? "Sunday Market" : p.channel === "in_app" ? "Card (in app)" : "Meetup"}</td>
                   <td>{timeAgo(p.created_at)}</td>
                   <td className="num">{p.price_cents ? formatPrice(p.price_cents, p.currency) : "Free"}</td>
                 </tr>

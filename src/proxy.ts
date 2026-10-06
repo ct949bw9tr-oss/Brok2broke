@@ -6,7 +6,8 @@ import { publicEnv } from "@/lib/env";
 // signed-out visitors to /login. This is an optimistic check only: real
 // authorization happens server-side in src/server/auth/session.ts and in RLS.
 
-const PUBLIC_PATHS = ["/login", "/auth/confirm"];
+// /api/stripe/webhook is called by Stripe (no session) and checks its own signature.
+const PUBLIC_PATHS = ["/login", "/auth/confirm", "/api/stripe/webhook"];
 
 export async function proxy(request: NextRequest) {
   let env: ReturnType<typeof publicEnv>;

@@ -4,6 +4,7 @@ import {
   listingPriceLabel,
   nextMarketDate,
   parsePriceToCents,
+  platformFeeCents,
   safeRedirectPath,
 } from "./catalog";
 
@@ -58,5 +59,13 @@ describe("safeRedirectPath", () => {
     expect(safeRedirectPath("//evil.com")).toBe("/browse");
     expect(safeRedirectPath("https://evil.com")).toBe("/browse");
     expect(safeRedirectPath(null)).toBe("/browse");
+  });
+});
+
+describe("platformFeeCents", () => {
+  it("takes 10% rounded to the cent", () => {
+    expect(platformFeeCents(1500)).toBe(150);
+    expect(platformFeeCents(1299)).toBe(130);
+    expect(platformFeeCents(55)).toBe(6);
   });
 });

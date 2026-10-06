@@ -64,7 +64,16 @@ Los admins ven **Insights** en el menú y pueden fijar lugar/horario del Sunday 
 
 Vercel (o similar): importa el repo y añade `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. No hace falta ninguna clave secreta.
 
-## Quién puede registrarse
+## Pagos con tarjeta (Stripe Connect, 10% de comisión)
+
+1. Crea una cuenta en [stripe.com](https://stripe.com) y activa **Connect** (Dashboard → Connect → Get started, tipo *Marketplace*).
+2. En Vercel añade `SUPABASE_SECRET_KEY`, `STRIPE_SECRET_KEY` y `STRIPE_PLATFORM_COUNTRY` (ver `.env.example`).
+3. Stripe → Developers → **Webhooks** → *Add endpoint*: `https://TU-WEB/api/stripe/webhook`, eventos `checkout.session.completed` y `checkout.session.async_payment_succeeded`. Copia el *Signing secret* a `STRIPE_WEBHOOK_SECRET` y haz Redeploy.
+4. Cada vendedor pulsa **Get paid** (en *Me*) una vez para conectar su banco. Desde ese momento sus anuncios muestran **Buy now**.
+
+Flujo: el comprador paga en Stripe Checkout → el webhook marca el anuncio como vendido, registra la venta (`in_app`) y abre un chat para quedar → Stripe transfiere el 90% al vendedor y el 10% queda en tu cuenta. Si dos personas pagan el mismo artículo, al segundo se le devuelve el dinero automáticamente.
+
+
 
 Por defecto el registro está **abierto a cualquier email** (la tabla `allowed_email_domains` está vacía).
 Para limitarlo a emails universitarios, añade los dominios (la web lo aplica al momento, sin redeploy):
