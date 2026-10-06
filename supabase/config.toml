@@ -1,0 +1,46 @@
+# Local development config for the Supabase CLI (`supabase start`).
+# Hosted projects: mirror the [auth] settings in the dashboard (see README).
+project_id = "broke2broke"
+
+[api]
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+
+[db]
+port = 54322
+major_version = 17
+
+[db.seed]
+enabled = false
+
+[storage]
+enabled = true
+file_size_limit = "5MiB"
+
+[inbucket]
+enabled = true
+port = 54324
+
+[auth]
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/auth/confirm"]
+jwt_expiry = 3600
+# Anyone can request a code, but the database only lets university emails in
+# (see public.handle_new_user).
+enable_signup = true
+
+[auth.email]
+enable_signup = true
+enable_confirmations = false
+otp_length = 6
+otp_expiry = 3600
+max_frequency = "30s"
+
+[auth.email.template.magic_link]
+subject = "Your Broke2Broke sign-in code"
+content_path = "./supabase/templates/magic_link.html"
+
+[auth.email.template.confirmation]
+subject = "Your Broke2Broke sign-in code"
+content_path = "./supabase/templates/magic_link.html"
