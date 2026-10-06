@@ -11,7 +11,7 @@ Marketplace estudiante-a-estudiante para **Hult International Business School** 
 
 | Funcionalidad | Detalle |
 | --- | --- |
-| **Acceso por email** | Código de un solo uso o enlace mágico, sin contraseñas. Abierto a cualquier email, o limitado a dominios universitarios (ver abajo); la restricción la aplica la base de datos (trigger en `auth.users`). |
+| **Email y contraseña** | Registro y acceso con email + contraseña (mínimo 8 caracteres), sin códigos. Abierto a cualquier email, o limitado a dominios universitarios (ver abajo); la restricción la aplica la base de datos (trigger en `auth.users`). |
 | **Campus** | Boston, London, Dubai, San Francisco. Cada uno con su moneda (USD/GBP/AED) y su zona horaria. |
 | **Anuncios** | Venta, intercambio (swap) o gratis. Hasta 6 fotos (se redimensionan en el móvil antes de subir), categoría, estado, descripción. Se pueden reservar, editar, retirar y marcar como vendidos. |
 | **Buscar y filtrar** | Texto, categoría, gratis/swap, "en el Sunday Market", campus, orden por precio. |
@@ -36,10 +36,10 @@ Toda la seguridad vive en la base de datos (RLS + funciones `security definer`):
 
 1. Crea un proyecto en [supabase.com](https://supabase.com).
 2. **SQL Editor** → ejecuta en orden los archivos de `supabase/migrations/`.
-3. **Authentication → Providers → Email**: activado, *Confirm email* activado.
-4. **Authentication → Email Templates**: pega `supabase/templates/magic_link.html` en **Magic Link** y en **Confirm signup** (incluye el código de 6 dígitos y un enlace que funciona en cualquier dispositivo).
+3. **Authentication → Sign In / Providers → Email**: activado, y **Confirm email desactivado** (así se entra nada más crear la cuenta, sin emails).
+4. (Opcional) Si más adelante activas *Confirm email*, pega `supabase/templates/magic_link.html` en **Confirm signup**; el enlace de confirmación vuelve a `/auth/confirm`.
 5. **Authentication → URL Configuration**: *Site URL* = la URL de tu web (p. ej. `https://broke2broke.vercel.app`) y añade `https://…/auth/confirm` a *Redirect URLs*.
-6. Configura un SMTP propio (Authentication → SMTP). El de Supabase solo envía unos pocos emails por hora.
+6. Solo si activas *Confirm email*: configura un SMTP propio (Authentication → SMTP). El de Supabase solo envía unos pocos emails por hora.
 
 ### 2. Ejecutar en local
 

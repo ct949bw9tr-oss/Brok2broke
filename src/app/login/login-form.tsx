@@ -1,89 +1,84 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import { SubmitButton } from "@/components/submit-button";
-import { sendSignInEmail, verifySignInCode, type SignInState } from "@/server/actions/auth";
+import { MIN_PASSWORD_LENGTH } from "@/lib/catalog";
+import { signIn, signUp, type AuthState } from "@/server/actions/auth";
 
-export function LoginForm({ next }: { next: string }) {
-  const [sendState, sendAction] = useActionState<SignInState, FormData>(sendSignInEmail, { step: "email" });
-  const [codeState, codeAction] = useActionState<SignInState, FormData>(verifySignInCode, { step: "email" });
+type Mode = "signin" | "signup";
 
-  if (sendState.step === "code") {
-    const error = codeState.step === "code" ? codeState.error : undefined;
-    return (
-      <form action={codeAction} className="stack">
-        <div className="stack-sm">
-          <h1 className="page-title" style={{ fontSize: 26 }}>
-            Check your inbox 📬
-          </h1>
-          <p className="text-2">
-            We sent a sign-in link and code to <strong>{sendState.email}</strong>. Click the link, or type the code here.
-          </p>
-        </div>
-        {error && (
+export function LoginForm({ next, initialMode = "signin" }: { next: string; initialMode?: Mode }) {
+  const [mode, setMode] = useState<Mode>(initialMode);
+  const [signInState, signInAction] = useActionState<AuthState, FormData>(signIn, undefined);
+  const [signUpState, signUpAction] = useActionState<AuthState, FormData>(signUp, undefined);
+  const state = mode === "signin" ? signInState : signUpState;
+
+  return (
+    <div className="stack">
+      <div className="segmented" role="tablist" aria-label="Sign in or create an account" style={{ alignSelf: "flex-start" }}>
+        <label>
+          <input type="radio" name="mode" checked={mode === "signin"} onChange={() => setMode("signin")} />
+          <span>Sign in</span>
+        </label>
+        <label>
+          <input type="radio" name="mode" checked={mode === "signup"} onChange={() => setMode("signup")} />
+          <span>Create account</span>
+        </label>
+      </div>
+
+      <form key={mode} action={mode === "signin" ? signInAction : signUpAction} className="stack">
+        <h1 className="page-title" style={{ fontSize: 26 }}>
+          {mode === "signin" ? "Welcome back" : "Join Broke2Broke"}
+        </h1>
+        {state?.error && (
           <div className="alert alert-error" role="alert">
-            {error}
+            {state.error}
           </div>
         )}
-        <input type="hidden" name="email" value={sendState.email} />
+        {state?.info && <div className="alert alert-success">{state.info}</div>}
         <input type="hidden" name="next" value={next} />
         <div className="field">
-          <label className="label" htmlFor="code">
-            Code
+          <label className="label" htmlFor="email">
+            Email
           </label>
           <input
-            id="code"
-            name="code"
-            className="input code-input"
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            maxLength={10}
-            placeholder="123456"
-            autoFocus
+            id="email"
+            name="email"
+            type="email"
+            className="input"
+            autoComplete="email"
+            placeholder="you@email.com"
+            defaultValue={state?.email}
             required
           />
         </div>
-        <SubmitButton className="btn btn-primary btn-lg btn-block" pendingLabel="Checking…">
-          Sign in
-        </SubmitButton>
-        <p className="small muted">Not there? Check spam, or reload this page to use another email.</p>
-      </form>
-    );
-  }
-
-  return (
-    <form action={sendAction} className="stack">
-      <div className="stack-sm">
-        <h1 className="page-title" style={{ fontSize: 26 }}>
-          Sign in or join
-        </h1>
-        <p className="text-2">Enter your email. We&apos;ll send you a one-time code, no password needed.</p>
-      </div>
-      {sendState.error && (
-        <div className="alert alert-error" role="alert">
-          {sendState.error}
+        <div className="field">
+          <label className="label" htmlFor="password">
+            Password
+          </label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            className="input"
+            autoComplete={mode === "signin" ? "current-password" : "new-password"}
+            minLength={mode === "signup" ? MIN_PASSWORD_LENGTH : undefined}
+            required
+          />
+          {mode === "signup" && <span className="hint">At least {MIN_PASSWORD_LENGTH} characters.</span>}
         </div>
-      )}
-      <input type="hidden" name="next" value={next} />
-      <div className="field">
-        <label className="label" htmlFor="email">
-          Email
-        </label>
-        <input
-          id="email"
-          name="email"
-          type="email"
-          className="input"
-          autoComplete="email"
-          placeholder="you@email.com"
-          defaultValue={sendState.email}
-          autoFocus
-          required
-        />
-      </div>
-      <SubmitButton className="btn btn-primary btn-lg btn-block" pendingLabel="Sending…">
-        Email me a code
-      </SubmitButton>
-    </form>
+        {mode === "signup" && (
+          <div className="field">
+            <label className="label" htmlFor="confirm">
+              Repeat password
+            </label>
+            <input id="confirm" name="confirm" type="password" className="input" autoComplete="new-password" required />
+          </div>
+        )}
+        <SubmitButton className="btn btn-primary btn-lg btn-block" pendingLabel={mode === "signin" ? "Signing in…" : "Creating account…"}>
+          {mode === "signin" ? "Sign in" : "Create account"}
+        </SubmitButton>
+      </form>
+    </div>
   );
 }
