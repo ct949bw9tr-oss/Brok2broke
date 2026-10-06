@@ -15,7 +15,7 @@ export default async function WelcomePage() {
     <div style={{ maxWidth: 520, margin: "0 auto" }} className="stack">
       <div className="stack-sm">
         <span className="chip chip-green" style={{ alignSelf: "flex-start" }}>
-          ✓ Hult email verified
+          ✓ Email verified
         </span>
         <h1 className="page-title">Welcome to Broke2Broke 👋</h1>
         <p className="text-2">One quick thing: which campus are you on? You&apos;ll see items and the Sunday Market near you.</p>

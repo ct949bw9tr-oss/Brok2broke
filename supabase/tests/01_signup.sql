@@ -1,4 +1,4 @@
--- Only verified university emails can create an account.
+-- With allowed domains configured, only those emails can create an account.
 
 begin;
 select tests.assert_eq(
@@ -23,6 +23,13 @@ $$;
 
 insert into auth.users (email) values ('New.Student@Student.Hult.edu');
 select tests.assert_eq((select count(*) from public.profiles), 5::bigint, 'mixed-case university email can sign up');
+rollback;
+
+-- With no allowed domains (open sign-up), any email can join.
+begin;
+delete from public.allowed_email_domains;
+insert into auth.users (email) values ('someone@gmail.com');
+select tests.assert_eq((select count(*) from public.profiles), 5::bigint, 'open sign-up accepts any email');
 rollback;
 
 -- Students cannot make themselves admin or edit other profiles.

@@ -3,7 +3,7 @@
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { z } from "zod";
-import { ALLOWED_EMAIL_DOMAINS, isAllowedEmail, safeRedirectPath } from "@/lib/catalog";
+import { safeRedirectPath } from "@/lib/catalog";
 import { createSupabaseServerClient } from "@/server/db/supabase-server";
 
 export type SignInState =
@@ -19,21 +19,20 @@ async function siteOrigin(): Promise<string> {
   return `${proto}://${host}`;
 }
 
-/** Step 1: email a one-time code + magic link to a university address. */
+/** Step 1: email a one-time code + magic link. */
 export async function sendSignInEmail(_prev: SignInState, formData: FormData): Promise<SignInState> {
   const email = String(formData.get("email") ?? "").trim().toLowerCase();
   const next = safeRedirectPath(String(formData.get("next") ?? ""));
   const parsed = emailSchema.safeParse(email);
   if (!parsed.success) return { step: "email", email, error: "Enter a valid email address." };
-  if (!isAllowedEmail(email)) {
-    return {
-      step: "email",
-      email,
-      error: `Broke2Broke is for verified Hult students. Use your @${ALLOWED_EMAIL_DOMAINS[0]} email.`,
-    };
+  const supabase = await createSupabaseServerClient();
+  // Sign-up may be limited to some email domains (public.allowed_email_domains;
+  // empty = anyone). Ask first so the student gets a clear message.
+  const { data: allowed } = await supabase.rpc("email_domain_allowed", { p_email: email });
+  if (allowed === false) {
+    return { step: "email", email, error: "Sign-up is limited to university emails right now. Use your school email." };
   }
 
-  const supabase = await createSupabaseServerClient();
   const redirectTo = `${await siteOrigin()}/auth/confirm?next=${encodeURIComponent(next)}`;
   const { error } = await supabase.auth.signInWithOtp({
     email,

@@ -10,7 +10,7 @@ const COLLAGE = [
 
 export default async function Landing() {
   const user = await getCurrentUser();
-  const cta = user ? { href: "/browse", label: "Go to the marketplace" } : { href: "/login", label: "Join with your Hult email" };
+  const cta = user ? { href: "/browse", label: "Go to the marketplace" } : { href: "/login", label: "Join Broke2Broke" };
 
   return (
     <div className="container">
@@ -23,13 +23,13 @@ export default async function Landing() {
 
       <section className="hero">
         <div>
-          <span className="chip chip-lime">🎓 Only verified Hult students</span>
+          <span className="chip chip-lime">🎓 Made for Hult students</span>
           <h1 style={{ marginTop: 18 }}>
             Buy &amp; sell with <mark>students</mark> on your campus.
           </h1>
           <p className="lede">
-            Broke2Broke is the student-to-student marketplace for Hult. No shipping, no strangers: every account is a
-            verified Hult email, and every Sunday we host a market on campus where you can see it, try it and take it home.
+            Broke2Broke is the student-to-student marketplace for Hult. No shipping, no hassle: chat in the app, meet on
+            campus, and every Sunday we host a market where you can see it, try it and take it home.
           </p>
           <div className="row">
             <Link href={cta.href} className="btn btn-primary btn-lg">
@@ -60,9 +60,9 @@ export default async function Landing() {
         <div className="steps">
           <div className="card card-pop">
             <span className="step-num">1</span>
-            <h3>Verify with your Hult email</h3>
+            <h3>Sign in with your email</h3>
             <p className="text-2" style={{ marginTop: 8 }}>
-              We send a one-time code to your @student.hult.edu address. No passwords, no outsiders.
+              We send a one-time code to your inbox. No passwords to remember.
             </p>
           </div>
           <div className="card card-pop">
@@ -115,8 +115,8 @@ export default async function Landing() {
         <h2 className="section-title">Why not Depop, Vinted or Facebook?</h2>
         <div className="compare">
           <div className="card">
-            <h3>✅ Verified students</h3>
-            <p className="text-2" style={{ marginTop: 6 }}>Everyone is a Hult student. Higher trust, fewer scams.</p>
+            <h3>🎓 Your campus community</h3>
+            <p className="text-2" style={{ marginTop: 6 }}>Buy from classmates, not random strangers across the city.</p>
           </div>
           <div className="card">
             <h3>📍 Nearby only</h3>

@@ -1,25 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
   formatPrice,
-  isAllowedEmail,
   listingPriceLabel,
   nextMarketDate,
   parsePriceToCents,
   safeRedirectPath,
 } from "./catalog";
-
-describe("isAllowedEmail", () => {
-  it("accepts Hult addresses in any case", () => {
-    expect(isAllowedEmail("maria@student.hult.edu")).toBe(true);
-    expect(isAllowedEmail("  Staff@HULT.edu ")).toBe(true);
-  });
-  it("rejects other and look-alike domains", () => {
-    expect(isAllowedEmail("maria@gmail.com")).toBe(false);
-    expect(isAllowedEmail("maria@student.hult.edu.evil.com")).toBe(false);
-    expect(isAllowedEmail("maria@nothult.edu")).toBe(false);
-    expect(isAllowedEmail("no-at-sign")).toBe(false);
-  });
-});
 
 describe("parsePriceToCents", () => {
   it("parses dots and commas", () => {
