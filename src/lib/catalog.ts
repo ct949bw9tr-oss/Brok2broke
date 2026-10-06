@@ -47,6 +47,7 @@ export type ListingStatus = "active" | "reserved" | "sold" | "removed";
 export type SaleChannel = "meetup" | "sunday_market";
 
 export const MAX_PHOTOS = 6;
+export const MIN_PASSWORD_LENGTH = 8;
 export const PHOTO_BUCKET = "listing-photos";
 
 export function campusName(id: string | null | undefined): string {

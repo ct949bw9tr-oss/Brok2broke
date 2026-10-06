@@ -10,7 +10,7 @@ const COLLAGE = [
 
 export default async function Landing() {
   const user = await getCurrentUser();
-  const cta = user ? { href: "/browse", label: "Go to the marketplace" } : { href: "/login", label: "Join Broke2Broke" };
+  const cta = user ? { href: "/browse", label: "Go to the marketplace" } : { href: "/login?mode=signup", label: "Join Broke2Broke" };
 
   return (
     <div className="container">
@@ -60,9 +60,9 @@ export default async function Landing() {
         <div className="steps">
           <div className="card card-pop">
             <span className="step-num">1</span>
-            <h3>Sign in with your email</h3>
+            <h3>Create your account</h3>
             <p className="text-2" style={{ marginTop: 8 }}>
-              We send a one-time code to your inbox. No passwords to remember.
+              Just an email and a password. You are in within seconds.
             </p>
           </div>
           <div className="card card-pop">
