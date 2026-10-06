@@ -1,0 +1,17 @@
+<!-- Paste into Supabase Dashboard > Authentication > Email Templates > "Magic Link" AND "Confirm signup". -->
+<div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto; padding: 24px; color: #15130f">
+  <h2 style="margin: 0 0 8px">Your Broke2Broke code</h2>
+  <p style="margin: 0 0 20px; color: #57534a">Type this code in the app to sign in:</p>
+  <p style="font-size: 32px; font-weight: 800; letter-spacing: 8px; margin: 0 0 24px">{{ .Token }}</p>
+  <p style="margin: 0 0 12px; color: #57534a">Or tap the button (works on any device):</p>
+  <p>
+    <a
+      href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email&next=/browse"
+      style="display: inline-block; background: #d4ff3a; color: #15130f; border: 2px solid #15130f; border-radius: 999px; padding: 12px 22px; font-weight: 700; text-decoration: none"
+      >Sign in to Broke2Broke</a
+    >
+  </p>
+  <p style="margin-top: 24px; font-size: 12px; color: #8b867a">
+    If you didn't ask for this, ignore this email. Broke2Broke is only for verified Hult students.
+  </p>
+</div>
