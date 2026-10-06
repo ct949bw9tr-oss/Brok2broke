@@ -55,7 +55,7 @@ export default async function InsightsPage({ searchParams }: { searchParams: Pro
           <div className="kpi-sub">{pct(marketShare)} at the Sunday Market</div>
         </div>
         <div className="kpi">
-          <div className="kpi-label">Verified students</div>
+          <div className="kpi-label">Students signed up</div>
           <div className="kpi-value">{m.students}</div>
           <div className="kpi-sub">
             {m.sellers} sellers · {m.buyers} buyers

@@ -2,7 +2,6 @@
 
 import { useActionState } from "react";
 import { SubmitButton } from "@/components/submit-button";
-import { ALLOWED_EMAIL_DOMAINS } from "@/lib/catalog";
 import { sendSignInEmail, verifySignInCode, type SignInState } from "@/server/actions/auth";
 
 export function LoginForm({ next }: { next: string }) {
@@ -58,7 +57,7 @@ export function LoginForm({ next }: { next: string }) {
         <h1 className="page-title" style={{ fontSize: 26 }}>
           Sign in or join
         </h1>
-        <p className="text-2">Use your Hult email. We&apos;ll send you a one-time code, no password needed.</p>
+        <p className="text-2">Enter your email. We&apos;ll send you a one-time code, no password needed.</p>
       </div>
       {sendState.error && (
         <div className="alert alert-error" role="alert">
@@ -68,7 +67,7 @@ export function LoginForm({ next }: { next: string }) {
       <input type="hidden" name="next" value={next} />
       <div className="field">
         <label className="label" htmlFor="email">
-          Hult email
+          Email
         </label>
         <input
           id="email"
@@ -76,7 +75,7 @@ export function LoginForm({ next }: { next: string }) {
           type="email"
           className="input"
           autoComplete="email"
-          placeholder={`you@${ALLOWED_EMAIL_DOMAINS[0]}`}
+          placeholder="you@email.com"
           defaultValue={sendState.email}
           autoFocus
           required

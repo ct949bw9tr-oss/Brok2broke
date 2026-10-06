@@ -116,7 +116,7 @@ export default async function MarketPage({ searchParams }: { searchParams: Promi
         <div className="card">
           <h3>Safety</h3>
           <p className="text-2 small" style={{ marginTop: 6 }}>
-            Everyone here is a verified Hult student. Check items before paying. Problems? Tell the Broke2Broke team on site.
+            Meet in person and check items before paying. Problems? Tell the Broke2Broke team on site.
           </p>
         </div>
       </section>

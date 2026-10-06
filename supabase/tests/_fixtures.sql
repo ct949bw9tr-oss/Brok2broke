@@ -50,6 +50,11 @@ $$;
 -- ---------------------------------------------------------------------------
 -- Accounts (auth.users -> profiles via trigger)
 -- ---------------------------------------------------------------------------
+-- Restricted mode (the open-signup migration empties this table).
+insert into public.allowed_email_domains (domain, university) values
+  ('student.hult.edu', 'Hult International Business School'),
+  ('hult.edu', 'Hult International Business School');
+
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-0000000000a1', 'alice.smith@student.hult.edu'),
   ('00000000-0000-0000-0000-0000000000b0', 'bob.jones2027@student.hult.edu'),

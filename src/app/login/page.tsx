@@ -27,7 +27,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <LoginForm next={next} />
         </div>
         <p className="small muted" style={{ textAlign: "center" }}>
-          Only verified Hult students and staff can join. We never show your email to other students.
+          We never show your email to other students.
         </p>
       </div>
     </main>

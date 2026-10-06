@@ -11,7 +11,7 @@ Marketplace estudiante-a-estudiante para **Hult International Business School** 
 
 | Funcionalidad | Detalle |
 | --- | --- |
-| **Solo estudiantes verificados** | Acceso con email `@student.hult.edu` / `@hult.edu`. Código de un solo uso o enlace mágico, sin contraseñas. La base de datos rechaza cualquier otro dominio (trigger en `auth.users`), aunque se llame a la API directamente. |
+| **Acceso por email** | Código de un solo uso o enlace mágico, sin contraseñas. Abierto a cualquier email, o limitado a dominios universitarios (ver abajo); la restricción la aplica la base de datos (trigger en `auth.users`). |
 | **Campus** | Boston, London, Dubai, San Francisco. Cada uno con su moneda (USD/GBP/AED) y su zona horaria. |
 | **Anuncios** | Venta, intercambio (swap) o gratis. Hasta 6 fotos (se redimensionan en el móvil antes de subir), categoría, estado, descripción. Se pueden reservar, editar, retirar y marcar como vendidos. |
 | **Buscar y filtrar** | Texto, categoría, gratis/swap, "en el Sunday Market", campus, orden por precio. |
@@ -64,15 +64,18 @@ Los admins ven **Insights** en el menú y pueden fijar lugar/horario del Sunday 
 
 Vercel (o similar): importa el repo y añade `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`. No hace falta ninguna clave secreta.
 
-## Ampliar a otra universidad
+## Quién puede registrarse
 
-Añade su dominio. No hay que cambiar código de la base de datos:
+Por defecto el registro está **abierto a cualquier email** (la tabla `allowed_email_domains` está vacía).
+Para limitarlo a emails universitarios, añade los dominios (la web lo aplica al momento, sin redeploy):
 
 ```sql
-insert into public.allowed_email_domains (domain, university) values ('bu.edu', 'Boston University');
+insert into public.allowed_email_domains (domain, university) values
+  ('student.hult.edu', 'Hult International Business School'),
+  ('hult.edu', 'Hult International Business School');
 ```
 
-Después actualiza `ALLOWED_EMAIL_DOMAINS` en `src/lib/catalog.ts` (validación y textos de la interfaz).
+Para volver a abrirlo: `delete from public.allowed_email_domains;`
 
 ## Tests
 

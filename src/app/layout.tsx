@@ -4,7 +4,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: { default: "Broke2Broke · Hult student marketplace", template: "%s · Broke2Broke" },
   description:
-    "Buy, sell and swap with verified Hult students on your campus. Meet up safely or at the weekly Sunday Market.",
+    "Buy, sell and swap with students on your campus. Meet up safely or at the weekly Sunday Market.",
 };
 
 export const viewport: Viewport = {

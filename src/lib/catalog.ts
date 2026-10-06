@@ -2,8 +2,6 @@
 // match the check constraints in supabase/migrations.
 
 export const UNIVERSITY_NAME = "Hult International Business School";
-/** Mirrors public.allowed_email_domains (the database is the real gate). */
-export const ALLOWED_EMAIL_DOMAINS = ["student.hult.edu", "hult.edu"] as const;
 
 export const CAMPUSES = [
   { id: "boston", name: "Boston", currency: "USD", timezone: "America/New_York" },
@@ -65,11 +63,6 @@ export function categoryOf(id: string) {
 
 export function conditionLabel(id: string): string {
   return CONDITIONS.find((c) => c.id === id)?.label ?? id;
-}
-
-export function isAllowedEmail(email: string): boolean {
-  const domain = email.trim().toLowerCase().split("@")[1];
-  return (ALLOWED_EMAIL_DOMAINS as readonly string[]).includes(domain ?? "");
 }
 
 export function formatPrice(cents: number, currency: string): string {

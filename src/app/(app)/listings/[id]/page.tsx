@@ -42,7 +42,7 @@ export default async function ListingPage({
     isOwner ? interestedBuyers(listing.id) : Promise.resolve([]),
     isOwner ? Promise.resolve(null) : myConversationForListing(listing.id, user.id),
   ]);
-  const sellerName = listing.seller?.full_name || "Hult student";
+  const sellerName = listing.seller?.full_name || "Student";
   const campus = campusById(listing.campus_id);
   const marketDate = campus ? nextMarketDate(new Date(), campus.timezone) : null;
 
@@ -91,7 +91,7 @@ export default async function ListingPage({
             <div style={{ flex: 1, minWidth: 0 }}>
               <strong>{isOwner ? "You" : sellerName}</strong>
               <div className="row small" style={{ gap: 8 }}>
-                <span className="verified">✓ Verified Hult student</span>
+                <span className="verified">✓ Verified email</span>
                 {listing.seller?.program && <span className="muted">· {listing.seller.program}</span>}
               </div>
             </div>
