@@ -41,7 +41,8 @@ export async function sendSignInEmail(_prev: SignInState, formData: FormData): P
   });
   if (error) {
     if (error.status === 429) return { step: "email", email, error: "Too many attempts. Wait a minute and try again." };
-    return { step: "email", email, error: "We couldn't send the email. Try again in a moment." };
+    // Show Supabase's reason (e.g. SMTP not configured) so setup problems are diagnosable.
+    return { step: "email", email, error: `We couldn't send the email (${error.message}). Try again in a moment.` };
   }
   return { step: "code", email, next };
 }
