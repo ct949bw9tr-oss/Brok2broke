@@ -59,7 +59,7 @@ select tests.assert_eq((select status from public.orders where stripe_session_id
   'refund_needed', 'late payment is flagged for refund');
 select tests.assert_true((select count(*) from public.messages m
   join public.conversations c on c.id = m.conversation_id
-  where c.buyer_id = '00000000-0000-0000-0000-0000000000b0' and m.body like 'I just paid%') = 1,
+  where c.buyer_id = '00000000-0000-0000-0000-0000000000b0' and m.body like 'Paid by card for%lobby%') = 1,
   'buyer and seller get a pickup chat message');
 
 select tests.login_as('00000000-0000-0000-0000-0000000000c0');

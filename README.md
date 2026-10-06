@@ -69,9 +69,9 @@ Vercel (o similar): importa el repo y añade `NEXT_PUBLIC_SUPABASE_URL` y `NEXT_
 1. Crea una cuenta en [stripe.com](https://stripe.com) y activa **Connect** (Dashboard → Connect → Get started, tipo *Marketplace*).
 2. En Vercel añade `SUPABASE_SECRET_KEY`, `STRIPE_SECRET_KEY` y `STRIPE_PLATFORM_COUNTRY` (ver `.env.example`).
 3. Stripe → Developers → **Webhooks** → *Add endpoint*: `https://TU-WEB/api/stripe/webhook`, eventos `checkout.session.completed` y `checkout.session.async_payment_succeeded`. Copia el *Signing secret* a `STRIPE_WEBHOOK_SECRET` y haz Redeploy.
-4. Cada vendedor pulsa **Get paid** (en *Me*) una vez para conectar su banco. Desde ese momento sus anuncios muestran **Buy now**.
+4. Para publicar algo **en venta** el vendedor conecta su banco una vez (**Get paid**); así todo lo que está a la venta tiene **Buy now**. Lo gratis y los intercambios no lo necesitan.
 
-Flujo: el comprador paga en Stripe Checkout → el webhook marca el anuncio como vendido, registra la venta (`in_app`) y abre un chat para quedar → Stripe transfiere el 90% al vendedor y el 10% queda en tu cuenta. Si dos personas pagan el mismo artículo, al segundo se le devuelve el dinero automáticamente.
+Flujo: el comprador paga en Stripe Checkout → el webhook marca el anuncio como vendido, registra la venta (`in_app`) y abre un chat proponiendo verse en el lobby del campus → Stripe transfiere el 90% al vendedor y el 10% queda en tu cuenta. Si dos personas pagan el mismo artículo, al segundo se le devuelve el dinero automáticamente.
 
 
 

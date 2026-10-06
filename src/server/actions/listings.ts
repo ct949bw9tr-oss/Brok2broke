@@ -13,6 +13,8 @@ import {
 } from "@/lib/catalog";
 import { requireStudent } from "@/server/auth/session";
 import { createSupabaseServerClient } from "@/server/db/supabase-server";
+import { myPayoutAccount } from "@/server/queries";
+import { getPayments } from "@/server/stripe";
 
 export type ListingFormState = { error?: string; fieldErrors?: Record<string, string> } | undefined;
 
@@ -67,6 +69,18 @@ function readListingForm(formData: FormData) {
   });
 }
 
+/**
+ * With card payments on, every item for sale must be buyable in the app, so
+ * the seller connects their bank first. Free and swap items don't need it.
+ */
+async function sellerNeedsPayouts(userId: string, kind: string): Promise<boolean> {
+  if (kind !== "sell" || !getPayments()) return false;
+  return !(await myPayoutAccount(userId))?.ready;
+}
+
+const NEEDS_PAYOUTS_ERROR =
+  "Connect your bank in “Get paid” before selling, so buyers can pay you by card. Free and swap items don't need it.";
+
 function fieldErrors(error: z.ZodError): Record<string, string> {
   const out: Record<string, string> = {};
   for (const issue of error.issues) {
@@ -81,6 +95,7 @@ export async function createListing(_prev: ListingFormState, formData: FormData)
   const parsed = readListingForm(formData);
   if (!parsed.success) return { error: "Check the highlighted fields.", fieldErrors: fieldErrors(parsed.error) };
   if (parsed.data.photos.some((p) => !p.startsWith(`${user.id}/`))) return { error: "Invalid photo." };
+  if (await sellerNeedsPayouts(user.id, parsed.data.kind)) return { error: NEEDS_PAYOUTS_ERROR };
 
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.from("listings").insert(parsed.data).select("id").single<{ id: string }>();
@@ -98,6 +113,7 @@ export async function updateListing(
   const parsed = readListingForm(formData);
   if (!parsed.success) return { error: "Check the highlighted fields.", fieldErrors: fieldErrors(parsed.error) };
   if (parsed.data.photos.some((p) => !p.startsWith(`${user.id}/`))) return { error: "Invalid photo." };
+  if (await sellerNeedsPayouts(user.id, parsed.data.kind)) return { error: NEEDS_PAYOUTS_ERROR };
 
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase

@@ -325,3 +325,15 @@ export async function myCardSales(userId: string): Promise<Sale[]> {
     .returns<Sale[]>();
   return data ?? [];
 }
+
+/** Buyer who paid for a listing by card (visible to the seller through RLS). */
+export async function paidBuyerOf(listingId: string): Promise<string | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase
+    .from("orders")
+    .select("buyer_id")
+    .eq("listing_id", listingId)
+    .eq("status", "paid")
+    .maybeSingle<{ buyer_id: string | null }>();
+  return data?.buyer_id ?? null;
+}
