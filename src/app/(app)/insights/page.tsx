@@ -52,7 +52,9 @@ export default async function InsightsPage({ searchParams }: { searchParams: Pro
         <div className="kpi highlight">
           <div className="kpi-label">Transactions</div>
           <div className="kpi-value">{m.transactions}</div>
-          <div className="kpi-sub">{pct(marketShare)} at the Sunday Market</div>
+          <div className="kpi-sub">
+            {pct(marketShare)} at the Sunday Market · {pct(m.transactions ? m.transactions_in_app / m.transactions : 0)} paid by card
+          </div>
         </div>
         <div className="kpi">
           <div className="kpi-label">Students signed up</div>
@@ -93,6 +95,13 @@ export default async function InsightsPage({ searchParams }: { searchParams: Pro
           <div className="kpi-label">Repeat buyers</div>
           <div className="kpi-value">{m.repeat_buyers}</div>
           <div className="kpi-sub">bought 2+ items</div>
+        </div>
+        <div className="kpi">
+          <div className="kpi-label">Commission earned</div>
+          <div className="kpi-value">
+            {m.fees.length === 0 ? "—" : m.fees.map((f) => formatPrice(f.total_cents, f.currency)).join(" · ")}
+          </div>
+          <div className="kpi-sub">10% of card sales</div>
         </div>
         <div className="kpi">
           <div className="kpi-label">Market RSVPs</div>

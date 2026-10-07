@@ -13,7 +13,18 @@ import {
   timeAgo,
 } from "@/lib/catalog";
 import { requireStudent } from "@/server/auth/session";
-import { getListing, interestedBuyers, isSaved, myConversationForListing } from "@/server/queries";
+import { SubmitButton } from "@/components/submit-button";
+import { buyNow } from "@/server/actions/payments";
+import {
+  getListing,
+  interestedBuyers,
+  isSaved,
+  myConversationForListing,
+  myPayoutAccount,
+  paidBuyerOf,
+  sellerAcceptsCards,
+} from "@/server/queries";
+import { getPayments } from "@/server/stripe";
 import { Gallery } from "./gallery";
 import { ContactSeller, OwnerControls, SaveButton } from "./listing-actions";
 
@@ -27,7 +38,7 @@ export default async function ListingPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ new?: string; sold?: string }>;
+  searchParams: Promise<{ new?: string; sold?: string; paid?: string; pay_error?: string }>;
 }) {
   const [{ id }, sp] = await Promise.all([params, searchParams]);
   const { user } = await requireStudent();
@@ -37,11 +48,19 @@ export default async function ListingPage({
   const isOwner = listing.seller_id === user.id;
   const category = categoryOf(listing.category);
   const available = listing.status === "active" || listing.status === "reserved";
-  const [saved, buyers, conversationId] = await Promise.all([
+  const paymentsOn = getPayments() !== null && listing.kind === "sell";
+  const [saved, buyers, conversationId, acceptsCards, ownPayout] = await Promise.all([
     isOwner ? Promise.resolve(false) : isSaved(user.id, listing.id),
     isOwner ? interestedBuyers(listing.id) : Promise.resolve([]),
     isOwner ? Promise.resolve(null) : myConversationForListing(listing.id, user.id),
+    !isOwner && paymentsOn ? sellerAcceptsCards(listing.seller_id) : Promise.resolve(false),
+    isOwner && paymentsOn ? myPayoutAccount(user.id) : Promise.resolve(null),
   ]);
+  const canBuyByCard = paymentsOn && acceptsCards && listing.status === "active";
+  // Seller of an item paid by card: link straight to the pickup chat.
+  const paidBuyer = isOwner && listing.status === "sold" ? await paidBuyerOf(listing.id) : null;
+  const pickupChatId = paidBuyer ? await myConversationForListing(listing.id, paidBuyer) : null;
+  const lobby = `${campusName(listing.campus_id)} campus lobby`;
   const sellerName = listing.seller?.full_name || "Student";
   const campus = campusById(listing.campus_id);
   const marketDate = campus ? nextMarketDate(new Date(), campus.timezone) : null;
@@ -56,6 +75,35 @@ export default async function ListingPage({
         <div className="alert alert-success">🎉 Your listing is live! Share it with your class group chat.</div>
       )}
       {sp.sold && <div className="alert alert-success">Nice! Marked as sold. Thanks for helping us measure Broke2Broke.</div>}
+      {sp.paid && (
+        <div className="card card-pop stack">
+          <strong>✅ Paid! Meet {sellerName.split(" ")[0]} in the {lobby}.</strong>
+          <p className="small text-2">
+            We&apos;ve messaged the seller for you. Agree on a time in the chat and collect your item.
+          </p>
+          <Link href={conversationId ? `/messages/${conversationId}` : "/messages"} className="btn btn-primary">
+            💬 Open chat
+          </Link>
+        </div>
+      )}
+      {pickupChatId && (
+        <div className="card card-pop stack">
+          <strong>💳 Sold and paid by card. Meet the buyer in the {lobby}.</strong>
+          <p className="small text-2">Bring the item and agree on a time in the chat. The money is on its way to your bank.</p>
+          <Link href={`/messages/${pickupChatId}`} className="btn btn-primary">
+            💬 Open chat with the buyer
+          </Link>
+        </div>
+      )}
+      {sp.pay_error && (
+        <div className="alert alert-error">
+          {sp.pay_error === "unavailable"
+            ? "This item can't be bought by card anymore."
+            : sp.pay_error === "seller_not_ready"
+              ? "This seller can't take card payments yet. Message them instead."
+              : "Card payment isn't available right now. Message the seller instead."}
+        </div>
+      )}
 
       <div className="detail">
         <Gallery photos={listing.photos} emoji={category.emoji} title={listing.title} />
@@ -97,6 +145,11 @@ export default async function ListingPage({
             </div>
           </div>
 
+          {isOwner && available && paymentsOn && !ownPayout?.ready && (
+            <Link href="/me/payouts" className="alert alert-info" style={{ display: "block" }}>
+              💳 Let buyers pay you by card in the app. Set up payouts (3 min) →
+            </Link>
+          )}
           {isOwner ? (
             available ? (
               <OwnerControls
@@ -111,10 +164,33 @@ export default async function ListingPage({
             ) : null
           ) : available ? (
             <div className="stack">
+              {canBuyByCard && (
+                <form action={buyNow.bind(null, listing.id)} className="stack-sm">
+                  <SubmitButton className="btn btn-primary btn-lg btn-block" pendingLabel="Opening secure checkout…">
+                    💳 Buy now · {listingPriceLabel(listing)}
+                  </SubmitButton>
+                  <span className="small muted" style={{ textAlign: "center" }}>
+                    Secure card payment by Stripe. Then meet the seller in the {lobby}.
+                  </span>
+                </form>
+              )}
               {conversationId ? (
-                <Link href={`/messages/${conversationId}`} className="btn btn-primary btn-lg btn-block">
+                <Link
+                  href={`/messages/${conversationId}`}
+                  className={canBuyByCard ? "btn btn-lg btn-block" : "btn btn-primary btn-lg btn-block"}
+                >
                   💬 Continue the conversation
                 </Link>
+              ) : canBuyByCard ? (
+                <details className="card disclosure">
+                  <summary className="row between">
+                    <strong>Have a question first?</strong>
+                    <span className="small muted">Message {sellerName.split(" ")[0]}</span>
+                  </summary>
+                  <div style={{ marginTop: 14 }}>
+                    <ContactSeller listingId={listing.id} sellerFirstName={sellerName.split(" ")[0]} />
+                  </div>
+                </details>
               ) : (
                 <div className="card card-pop">
                   <ContactSeller listingId={listing.id} sellerFirstName={sellerName.split(" ")[0]} />
@@ -122,10 +198,14 @@ export default async function ListingPage({
               )}
               <div className="row">
                 <SaveButton listingId={listing.id} saved={saved} />
-                <span className="small muted">Meet in a public place on campus. Pay when you have the item.</span>
+                <span className="small muted">
+                  {canBuyByCard
+                    ? "Meet in a public place on campus to collect it."
+                    : "Meet in a public place on campus. Pay when you have the item."}
+                </span>
               </div>
             </div>
-          ) : (
+          ) : sp.paid ? null : (
             <div className="alert alert-info">This item is no longer available.</div>
           )}
         </div>

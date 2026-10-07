@@ -70,7 +70,7 @@ export default async function ConversationPage({ params }: { params: Promise<{ i
       </div>
 
       <p className="small muted" style={{ textAlign: "center" }}>
-        🛡️ Meet somewhere public on campus or at the Sunday Market. Never pay before you see the item.
+        🛡️ Meet in the campus lobby or at the Sunday Market. Check the item when you collect it.
       </p>
       <Composer conversationId={id} />
     </div>

@@ -48,6 +48,18 @@ export type SaleChannel = "meetup" | "sunday_market";
 
 export const MAX_PHOTOS = 6;
 export const MIN_PASSWORD_LENGTH = 8;
+
+/** Broke2Broke's cut of every card payment. */
+export const PLATFORM_FEE_PERCENT = 10;
+
+export function platformFeeCents(amountCents: number): number {
+  return Math.round((amountCents * PLATFORM_FEE_PERCENT) / 100);
+}
+
+/** Country of the bank account a seller on this campus is expected to use. */
+export function payoutCountryForCampus(campusId: string): string {
+  return { boston: "US", san_francisco: "US", london: "GB", dubai: "AE" }[campusId] ?? "US";
+}
 export const PHOTO_BUCKET = "listing-photos";
 
 export function campusName(id: string | null | undefined): string {

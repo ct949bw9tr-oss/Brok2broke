@@ -267,6 +267,8 @@ export type ExperimentMetrics = {
   conversations: number;
   transactions: number;
   transactions_at_market: number;
+  transactions_in_app: number;
+  fees: { currency: string; total_cents: number }[];
   sell_through_rate: number;
   contact_to_sale_rate: number;
   median_hours_to_sell: number | null;
@@ -281,4 +283,57 @@ export async function experimentMetrics(campusId?: string): Promise<ExperimentMe
   const { data, error } = await supabase.rpc("experiment_metrics", { p_campus_id: campusId ?? null });
   if (error) throw new Error(error.message);
   return data as ExperimentMetrics;
+}
+
+/** Whether buyers can pay this seller by card in the app. */
+export async function sellerAcceptsCards(sellerId: string): Promise<boolean> {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase.rpc("seller_accepts_cards", { p_seller_id: sellerId });
+  return data === true;
+}
+
+export type MyPayoutAccount = { user_id: string; stripe_account_id: string; country: string; ready: boolean };
+
+export async function myPayoutAccount(userId: string): Promise<MyPayoutAccount | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase
+    .from("payout_accounts")
+    .select("user_id, stripe_account_id, country, ready")
+    .eq("user_id", userId)
+    .maybeSingle<MyPayoutAccount>();
+  return data ?? null;
+}
+
+export type Sale = {
+  id: string;
+  amount_cents: number;
+  fee_cents: number;
+  currency: string;
+  status: string;
+  created_at: string;
+  listing: { id: string; title: string } | null;
+};
+
+export async function myCardSales(userId: string): Promise<Sale[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase
+    .from("orders")
+    .select("id, amount_cents, fee_cents, currency, status, created_at, listing:listings(id, title)")
+    .eq("seller_id", userId)
+    .eq("status", "paid")
+    .order("created_at", { ascending: false })
+    .returns<Sale[]>();
+  return data ?? [];
+}
+
+/** Buyer who paid for a listing by card (visible to the seller through RLS). */
+export async function paidBuyerOf(listingId: string): Promise<string | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase
+    .from("orders")
+    .select("buyer_id")
+    .eq("listing_id", listingId)
+    .eq("status", "paid")
+    .maybeSingle<{ buyer_id: string | null }>();
+  return data?.buyer_id ?? null;
 }
